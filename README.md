@@ -1,122 +1,128 @@
-# 🎵 Music Recommender Simulation
+# 🎵 Music Recommender Simulation — VibeFinder 1.0
 
 ## Project Summary
 
-In this project you will build and explain a small music recommender system.
-
-Your goal is to:
-
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
-
-Replace this paragraph with your own summary of what your version does.
-
----
+VibeFinder 1.0 is a CLI-first content-based music recommendation simulator. It reads a fictional catalog of 18 songs, compares song attributes with a user's preferences, and ranks the top five with scores and explanations. This is a transparent, rule-based simulation, not a trained predictive machine learning model.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world platforms use collaborative filtering (patterns of many listeners) and content-based filtering (metadata and audio features), informed by likes, skips, playlists, and listening time. This project intentionally uses **content-based filtering** only.
 
-Some prompts to answer:
+- **Song attributes:** ID, title, artist, genre, mood, energy, tempo (BPM), valence, danceability, and acousticness.
+- **User profile:** favorite genre, favorite mood, target energy, and optional preference for acoustic tracks.
+- **Algorithm recipe:** +2.0 points for exact genre match, +1.0 for exact mood match, and energy similarity points calculated as `1 - abs(song_energy - target_energy)`. Optional class-based acoustic bonus is at most 0.5.
+- **Ranking:** score every song, sort descending by score (breaking ties by title), then return the top K with reasons.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+For the default CLI, the maximum score is **4.0**. A song's score expresses fit to rules, not a probability of liking it. A **scoring rule** judges one song; a **ranking rule** sorts all judged songs.
 
-You can include a simple diagram or bullet list if helpful.
-
----
+```text
+CSV catalog + user preferences
+             ↓
+  Load and cast numeric fields
+             ↓
+   Score each song + reasons
+             ↓
+    Sort by descending score
+             ↓
+      Display Top 5 songs
+```
 
 ## Getting Started
 
-### Setup
-
-1. Create a virtual environment (optional but recommended):
-
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate      # Mac or Linux
-   .venv\Scripts\activate         # Windows
-
-2. Install dependencies
+From the project root:
 
 ```bash
-pip install -r requirements.txt
-```
-
-3. Run the app:
-
-```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 python -m src.main
+python -m pytest -q
 ```
-
-### Running Tests
-
-Run the starter tests with:
-
-```bash
-pytest
-```
-
-You can add more tests in `tests/test_recommender.py`.
-
----
 
 ## Sample Recommendation Output
 
-Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
+The following terminal output was generated from the 18-song dataset and covers all four profiles and a weight experiment:
 
+```text
+Loaded songs: 18
+
+User profile: High-Energy Pop | {"genre":"pop","mood":"happy","energy":0.8}
+  1. Sunrise City — Neon Echo | Score: 3.98
+     Because: genre match (+2.00), mood match (+1.00), energy similarity (+0.98)
+  2. Gym Hero — Max Pulse | Score: 2.87
+     Because: genre match (+2.00), energy similarity (+0.87)
+  3. Golden Coastline — Sunbird Collective | Score: 1.98
+     Because: mood match (+1.00), energy similarity (+0.98)
+  4. Summer Calle — Mar Sol | Score: 1.97
+     Because: mood match (+1.00), energy similarity (+0.97)
+  5. Rooftop Lights — Indigo Parade | Score: 1.96
+     Because: mood match (+1.00), energy similarity (+0.96)
+
+User profile: Chill Lofi | {"genre":"lofi","mood":"chill","energy":0.35}
+  1. Library Rain — Paper Lanterns | Score: 4.00
+     Because: genre match (+2.00), mood match (+1.00), energy similarity (+1.00)
+  2. Midnight Coding — LoRoom | Score: 3.93
+     Because: genre match (+2.00), mood match (+1.00), energy similarity (+0.93)
+  3. Focus Flow — LoRoom | Score: 2.95
+     Because: genre match (+2.00), energy similarity (+0.95)
+  4. Spacewalk Thoughts — Orbit Bloom | Score: 1.93
+     Because: mood match (+1.00), energy similarity (+0.93)
+  5. Coffee Shop Stories — Slow Stereo | Score: 0.98
+     Because: energy similarity (+0.98)
+
+User profile: Intense Rock | {"genre":"rock","mood":"intense","energy":0.9}
+  1. Storm Runner — Voltline | Score: 3.99
+     Because: genre match (+2.00), mood match (+1.00), energy similarity (+0.99)
+  2. Gym Hero — Max Pulse | Score: 1.97
+     Because: mood match (+1.00), energy similarity (+0.97)
+  3. Voltage Bloom — Club Circuit | Score: 0.94
+     Because: energy similarity (+0.94)
+  4. Summer Calle — Mar Sol | Score: 0.93
+     Because: energy similarity (+0.93)
+  5. Sunrise City — Neon Echo | Score: 0.92
+     Because: energy similarity (+0.92)
+
+User profile: Edge Case: Sad High-Energy Pop | {"genre":"pop","mood":"sad","energy":0.95}
+  1. Gym Hero — Max Pulse | Score: 2.98
+     Because: genre match (+2.00), energy similarity (+0.98)
+  2. Sunrise City — Neon Echo | Score: 2.87
+     Because: genre match (+2.00), energy similarity (+0.87)
+  3. Voltage Bloom — Club Circuit | Score: 0.99
+     Because: energy similarity (+0.99)
+  4. Storm Runner — Voltline | Score: 0.96
+     Because: energy similarity (+0.96)
+  5. Summer Calle — Mar Sol | Score: 0.88
+     Because: energy similarity (+0.88)
+
+EXPERIMENT: Half genre weight (2.0→1.0), double energy weight (1.0→2.0)
+
+User profile: High-Energy Pop, altered weights | {"genre":"pop","mood":"happy","energy":0.8}
+  1. Sunrise City — Neon Echo | Score: 3.96
+     Because: genre match (+1.00), mood match (+1.00), energy similarity (+1.96)
+  2. Golden Coastline — Sunbird Collective | Score: 2.96
+     Because: mood match (+1.00), energy similarity (+1.96)
+  3. Summer Calle — Mar Sol | Score: 2.94
+     Because: mood match (+1.00), energy similarity (+1.94)
+  4. Rooftop Lights — Indigo Parade | Score: 2.92
+     Because: mood match (+1.00), energy similarity (+1.92)
+  5. Gym Hero — Max Pulse | Score: 2.74
+     Because: genre match (+1.00), energy similarity (+1.74)
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
-```
-
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
-
----
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+**Baseline:** genre=2, mood=1, energy=1. The Happy Pop listener saw Sunrise City (3.98) first and Gym Hero (2.87) second. Gym Hero is intense rather than happy, yet the genre bonus placed it ahead of happier cross-genre tracks.
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+**Changed weights:** genre=1, mood=1, energy=2 (same 4-point maximum). Sunrise City remained first (3.96), Golden Coastline rose to second (2.96), and Gym Hero dropped to fifth (2.74). This demonstrates sensitivity to weights, not objectively better accuracy—there are no actual user preference labels or ground truth.
 
----
+**Profiles:** High-Energy Pop, Chill Lofi, Intense Rock, and a contradictory Sad High-Energy Pop edge case each produced different lists.
 
 ## Limitations and Risks
 
-Summarize some limitations of your recommender.
-
-Examples:
-
-- It only works on a tiny catalog
-- It does not understand lyrics or language
-- It might over favor one genre or mood
-
-You will go deeper on this in your model card.
-
----
+This tiny synthetic dataset has uneven genre representation, including three lofi songs and only one rock song. Exact labels fail to connect related genres (pop versus indie pop). Giving genre a large bonus can cause a filter bubble and overlook songs of different genres with suitable mood and energy. The simulation does not learn from listening history, understand lyrics, balance artist diversity, or evaluate against listener ratings.
 
 ## Reflection
 
-Read and complete `model_card.md`:
+**Personalize this draft to match your own experience before submission.** A small collection of rules can produce recommendations that feel plausible, but a single weight can change which music users discover. AI-assisted brainstorming helped clarify the scoring formula and code structure; automated tests and inspection of ranking outputs were needed to catch mistakes. The Gym Hero example illustrates that plausible-looking recommendations can still contain bias. Future work could include listener feedback and a diversity-aware reranker.
 
-[**Model Card**](model_card.md)
-
-Write 1 to 2 paragraphs here about what you learned:
-
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
-
-
-
+More detail: [Model Card](model_card.md).
