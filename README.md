@@ -123,6 +123,8 @@ This tiny synthetic dataset has uneven genre representation, including three lof
 
 ## Reflection
 
-**Personalize this draft to match your own experience before submission.** A small collection of rules can produce recommendations that feel plausible, but a single weight can change which music users discover. AI-assisted brainstorming helped clarify the scoring formula and code structure; automated tests and inspection of ranking outputs were needed to catch mistakes. The Gym Hero example illustrates that plausible-looking recommendations can still contain bias. Future work could include listener feedback and a diversity-aware reranker.
+Building this recommender helped me see how a music platform can turn simple song features into a ranked list without training a machine-learning model. The scoring rule is straightforward, but its weights matter: the baseline placed Gym Hero second for a Happy Pop listener even though the track is labeled intense. When I shifted weight away from genre and toward energy, the ranking changed. That made me more aware that a recommendation can look reasonable while still reflecting the assumptions and biases built into its rules.
+
+I used AI assistance to plan and implement the Python scoring functions, add explanations, and structure the evaluation. I also had to troubleshoot practical problems in my development environment, including Python commands, module imports, and a circular import, and I used the automated tests to check the implementation. The biggest lesson for me was that generating code is only part of engineering; I still need to understand the logic, verify the output, and consider what the system misses. If I continued the project, I would add real listener feedback and a diversity-aware ranking step.
 
 More detail: [Model Card](model_card.md).
